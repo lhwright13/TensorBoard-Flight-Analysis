@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TensorBoard Flight Plugin</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', Arial, sans-serif;
+      background-color: #1a1a1a;
+      color: #e0e0e0;
+    }
+
+    #root {
+      width: 100%;
+      height: 100vh;
+    }
+
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-size: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div class="loading">Loading flight visualization...</div>
+  </div>
+
+  <!-- Load React and ReactDOM locally (required by the bundle) -->
+  <script src="/data/plugin/flight/static/react.production.min.js"></script>
+  <script src="/data/plugin/flight/static/react-dom.production.min.js"></script>
+
+  <!-- Load the bundled React app (expects React and ReactDOM to be global) -->
+  <script src="/data/plugin/flight/static/index.js"></script>
+
+  <!-- Initialize the app (external script to avoid CSP violations) -->
+  <script src="/data/plugin/flight/static/app_init.js"></script>
+</body>
+</html>

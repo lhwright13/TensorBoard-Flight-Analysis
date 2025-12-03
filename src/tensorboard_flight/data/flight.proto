@@ -1,0 +1,109 @@
+syntax = "proto3";
+
+package tensorboard_flight;
+
+// Orientation in Euler angles
+message Orientation {
+  float roll = 1;   // degrees
+  float pitch = 2;  // degrees
+  float yaw = 3;    // degrees
+}
+
+// Flight telemetry data
+message Telemetry {
+  float airspeed = 1;
+  float altitude = 2;
+  float g_force = 3;
+  float throttle = 4;
+  float aoa = 5;  // angle of attack
+  float aos = 6;  // angle of sideslip
+  float heading = 7;
+  float vertical_speed = 8;
+  float turn_rate = 9;
+  float bank_angle = 10;
+
+  // Optional control surfaces
+  optional float aileron = 11;
+  optional float elevator = 12;
+  optional float rudder = 13;
+}
+
+// RL-specific metrics
+message RLMetrics {
+  float reward = 1;
+  float cumulative_reward = 2;
+  repeated float action = 3;
+
+  optional float policy_logprob = 4;
+  optional float value_estimate = 5;
+  optional float advantage = 6;
+  optional float entropy = 7;
+
+  // Reward components (key-value pairs)
+  map<string, float> reward_components = 8;
+}
+
+// Discrete event marker
+message Event {
+  float timestamp = 1;
+  string event_type = 2;  // "crash", "checkpoint", "timeout", "custom"
+  string severity = 3;     // "info", "warning", "error"
+  string message = 4;
+
+  // Additional metadata as JSON string
+  optional string metadata_json = 5;
+}
+
+// Single timestep of flight data
+message FlightDataPoint {
+  float timestamp = 1;
+  int32 step = 2;
+
+  // Kinematic state
+  repeated float position = 3;         // [x, y, z]
+  Orientation orientation = 4;
+  repeated float velocity = 5;         // [vx, vy, vz]
+  repeated float angular_velocity = 6; // [p, q, r]
+
+  // Telemetry and RL metrics
+  Telemetry telemetry = 7;
+  RLMetrics rl_metrics = 8;
+
+  // Optional events at this timestep
+  repeated Event events = 9;
+}
+
+// Episode metadata
+message EpisodeMetadata {
+  string episode_id = 1;
+  string agent_id = 2;
+  int32 episode_number = 3;
+
+  float start_time = 4;
+  float duration = 5;
+  int32 total_steps = 6;
+
+  float total_reward = 7;
+  bool success = 8;
+  string termination_reason = 9;
+
+  // Optional config and tags as JSON strings
+  optional string config_json = 10;
+  repeated string tags = 11;
+}
+
+// Complete flight episode
+message FlightEpisode {
+  EpisodeMetadata metadata = 1;
+  repeated FlightDataPoint trajectory = 2;
+}
+
+// Summary for TensorBoard event file
+message FlightSummary {
+  EpisodeMetadata metadata = 1;
+
+  // Compressed trajectory data
+  // For efficiency, we store trajectory as a separate blob
+  // that can be fetched on-demand
+  bytes trajectory_data = 2;
+}

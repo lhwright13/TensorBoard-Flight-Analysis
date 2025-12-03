@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TensorBoard Flight Plugin - Test</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', Arial, sans-serif;
+      background-color: #1a1a1a;
+      color: #e0e0e0;
+    }
+
+    #root {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-size: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div class="loading">Loading flight data...</div>
+  </div>
+
+  <!-- Load React from CDN for testing -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <!-- Load the bundled app -->
+  <script src="./dist/index.js"></script>
+
+  <!-- Initialize with test data -->
+  <script src="./test-data.js"></script>
+  <script>
+    // Mock TensorBoard API for standalone testing
+    window.tensorboard_api = {
+      runs: ['test_run'],
+      episodes: {
+        'test_run': [window.testFlightData]
+      }
+    };
+
+    // Initialize the app
+    document.addEventListener('DOMContentLoaded', () => {
+      const root = document.getElementById('root');
+
+      if (window.tensorboard_flight) {
+        window.tensorboard_flight.render(root);
+
+        // Load test episode after render
+        setTimeout(() => {
+          if (window.tensorboard_flight.loadEpisode) {
+            window.tensorboard_flight.loadEpisode(window.testFlightData);
+          } else {
+            console.error('loadEpisode function not found');
+          }
+        }, 100);
+      } else {
+        console.error('tensorboard_flight not found - check bundle');
+        root.innerHTML = '<div class="loading" style="color: #ef4444;">Error: Failed to load application bundle</div>';
+      }
+    });
+  </script>
+</body>
+</html>

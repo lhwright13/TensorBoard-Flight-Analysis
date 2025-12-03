@@ -1,0 +1,61 @@
+.selector-panel {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem;
+  background-color: #2a2a2a;
+  border-bottom: 1px solid #333;
+}
+
+.selector-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.selector-group label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #999;
+}
+
+.selector-group select {
+  padding: 0.5rem 0.75rem;
+  background-color: #1a1a1a;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+  min-width: 200px;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.selector-group select:hover:not(:disabled) {
+  border-color: #666;
+}
+
+.selector-group select:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.selector-group select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.selector-loading {
+  font-size: 0.85rem;
+  color: #3b82f6;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

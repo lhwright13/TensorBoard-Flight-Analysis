@@ -1,0 +1,57 @@
+.telemetry-panel {
+  height: 100%;
+}
+
+.telemetry-panel h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.telemetry-section {
+  margin-bottom: 1.5rem;
+}
+
+.telemetry-section h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.telemetry-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+.telemetry-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0.6rem;
+  background-color: #2a2a2a;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.telemetry-item .label {
+  color: #999;
+  font-weight: 400;
+}
+
+.telemetry-item .value {
+  font-family: 'Roboto Mono', monospace;
+  font-weight: 500;
+  color: #e0e0e0;
+}
+
+.telemetry-item .value.positive {
+  color: #10b981;
+}
+
+.telemetry-item .value.negative {
+  color: #ef4444;
+}

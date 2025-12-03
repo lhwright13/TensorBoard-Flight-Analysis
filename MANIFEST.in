@@ -1,0 +1,7 @@
+include README.md
+include LICENSE
+include CHANGELOG.md
+include requirements.txt
+recursive-include src/tensorboard_flight/static *
+recursive-include src/tensorboard_flight/data *.proto
+include src/tensorboard_flight/acmi/README.md

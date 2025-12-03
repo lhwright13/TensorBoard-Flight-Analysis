@@ -1,0 +1,12 @@
+# Core dependencies
+tensorboard>=2.11.0
+protobuf>=3.19.0
+numpy>=1.21.0
+werkzeug>=2.0.0
+
+# Development dependencies
+pytest>=7.0.0
+pytest-cov>=3.0.0
+black>=22.0.0
+flake8>=4.0.0
+mypy>=0.950
