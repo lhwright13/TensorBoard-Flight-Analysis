@@ -11,6 +11,10 @@ A TensorBoard plugin for visualizing and analyzing flight trajectories from rein
 - **Time Series Charts**: Plot any telemetry or RL metric over time
 - **Event Tracking**: Mark and analyze critical events (crashes, checkpoints, etc.)
 
+## Demo
+
+![Flight Visualization Demo](docs/flight_demo.gif)
+
 ## Status
 
 **Current Phase**: Phase 2 Complete ✅

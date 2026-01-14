@@ -50,7 +50,12 @@ setup(
         ],
     },
     package_data={
-        "tensorboard_flight": ["static/*"],
+        "tensorboard_flight": [
+            "static/*",
+            "static/models/*.glb",
+            "static/models/*.obj",
+            "static/models/*.mtl",
+        ],
     },
     include_package_data=True,
     zip_safe=False,

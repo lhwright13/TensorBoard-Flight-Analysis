@@ -15,7 +15,6 @@ from werkzeug.exceptions import NotFound
 
 from tensorboard.backend import http_util
 from tensorboard.plugins import base_plugin
-from tensorboard.backend.event_processing import plugin_event_multiplexer as event_multiplexer
 
 # Import ACMI export functionality
 from tensorboard_flight.acmi import ACMIWriter
@@ -68,7 +67,6 @@ class FlightPlugin(base_plugin.TBPlugin):
 
         # Check if any run has flight plugin data by reading event files directly
         from tensorboard.backend.event_processing.event_file_loader import EventFileLoader
-        import glob
 
         for run in self.multiplexer.Runs():
             try:
@@ -588,6 +586,14 @@ class FlightPlugin(base_plugin.TBPlugin):
             content_type = "text/css"
         elif filename.endswith(".html"):
             content_type = "text/html"
+        elif filename.endswith(".glb"):
+            content_type = "model/gltf-binary"
+        elif filename.endswith(".gltf"):
+            content_type = "model/gltf+json"
+        elif filename.endswith(".obj"):
+            content_type = "text/plain"
+        elif filename.endswith(".mtl"):
+            content_type = "text/plain"
 
         # Read and serve file
         with open(filepath, "rb") as f:

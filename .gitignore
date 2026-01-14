@@ -48,6 +48,11 @@ htmlcov/
 runs/
 logs/
 tensorboard_logs/
+test_logs/
+
+# Generated test data
+src/frontend/test-data.js
+*.tfevents.*
 
 # Frontend
 node_modules/
