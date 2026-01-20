@@ -72,10 +72,12 @@ class FlightLoggerCallback(BaseCallback):
         # Check if we're in a vectorized environment
         if isinstance(env, VecEnv):
             # Handle first environment only for simplicity
-            # In production, you'd log all parallel environments
             env_idx = 0
 
-            # Check if episode just started
+            # Get done signal - we need this to track ALL episodes, not just logged ones
+            done = self.locals.get('dones', [False])[env_idx]
+
+            # Check if episode just started (after a done or at the very beginning)
             if not self.current_episode_started:
                 # Decide if we should log this episode
                 self.should_log_episode = (
@@ -84,18 +86,19 @@ class FlightLoggerCallback(BaseCallback):
 
                 if self.should_log_episode:
                     self.flight_logger.start_episode(agent_id=self.agent_id)
-                    self.current_episode_started = True
                     self.episode_steps = []
 
                     if self.verbose > 1:
                         print(f"  Started logging episode {self.episode_count}")
 
+                # Mark episode as started regardless of logging
+                self.current_episode_started = True
+
             # If we're logging this episode, capture the step data
-            if self.should_log_episode and self.current_episode_started:
+            if self.should_log_episode:
                 # Extract data from locals
                 obs = self.locals.get('new_obs', [None])[env_idx]
                 reward = self.locals.get('rewards', [0.0])[env_idx]
-                done = self.locals.get('dones', [False])[env_idx]
                 info = self.locals.get('infos', [{}])[env_idx]
                 action = self.locals.get('actions', [None])[env_idx]
 
@@ -110,9 +113,11 @@ class FlightLoggerCallback(BaseCallback):
                         self.flight_logger.log_flight_data(**step_data)
                         self.episode_steps.append(step_data)
 
-                # Check if episode ended
-                if done:
-                    # End episode logging
+            # Check if episode ended - this must happen for ALL episodes
+            if done:
+                # If we were logging this episode, finalize it
+                if self.should_log_episode:
+                    info = self.locals.get('infos', [{}])[env_idx]
                     success = info.get('success', False)
                     termination_reason = info.get('termination_reason', 'unknown')
 
@@ -130,11 +135,12 @@ class FlightLoggerCallback(BaseCallback):
                               f"{len(self.episode_steps)} steps, "
                               f"reward={total_reward:.2f}")
 
-                    # Reset state
-                    self.current_episode_started = False
-                    self.should_log_episode = False
-                    self.episode_count += 1
                     self.episode_steps = []
+
+                # Always increment episode count and reset state
+                self.current_episode_started = False
+                self.should_log_episode = False
+                self.episode_count += 1
 
         return True
 
@@ -184,18 +190,19 @@ class FlightLoggerCallback(BaseCallback):
         yaw = float(obs[13])
 
         # Get position from info if available (otherwise use dummy values)
+        # Position should be in NED coordinates - frontend handles transformation
         position = info.get('position', np.array([0.0, 0.0, -altitude]))
         if not isinstance(position, (list, np.ndarray)):
             position = np.array([0.0, 0.0, -altitude])
-        position = tuple(position[:3])
+        position = tuple(float(x) for x in position[:3])
 
-        # Velocity (approximate from airspeed and orientation)
+        # Velocity (approximate from airspeed and orientation in NED)
         vx = airspeed * np.cos(pitch) * np.cos(yaw)
         vy = airspeed * np.cos(pitch) * np.sin(yaw)
-        vz = airspeed * np.sin(pitch)
+        vz = -airspeed * np.sin(pitch)  # NED: positive pitch = nose up = negative vz
         velocity = (float(vx), float(vy), float(vz))
 
-        # Orientation in degrees
+        # Orientation in degrees (NED convention - frontend handles transformation)
         orientation = (
             float(np.degrees(roll)),
             float(np.degrees(pitch)),
@@ -264,12 +271,14 @@ class FlightLoggerCallback(BaseCallback):
 
     def _on_training_end(self) -> None:
         """Called at the end of training."""
-        # Close any incomplete episode
-        if self.current_episode_started:
+        # Close any incomplete episode (only if we were actually logging it)
+        if self.current_episode_started and self.should_log_episode:
             self.flight_logger.end_episode(termination_reason="training_ended")
+        self.current_episode_started = False
+        self.should_log_episode = False
 
-        # Final flush and close
-        self.flight_logger.close()
+        # Flush but don't close - logger may be reused in curriculum learning
+        self.flight_logger.flush()
 
         if self.verbose > 0:
             print(f"FlightLoggerCallback: Logged {self.episode_count} episodes")
